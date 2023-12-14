@@ -1,0 +1,22 @@
+name: Github issue comment capture
+
+# Controls when the workflow will run
+on:
+  issue_comment:
+    types: [created, edited, deleted]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      comment: ${{ toJSON(github.event.comment) }}
+    steps:
+      - name: Send issue comment to remote server
+        run: |
+          tracking_url=${{ vars.TRACKING_ENDPOINT_URL }}
+          echo $tracking_url
+          echo $comment
+          
+          curl -X POST $tracking_url \
+          --header 'Content-Type: application/json' \
+          --data "{ \"action\": \"${{ github.event.action }}\", \"data\": $comment }"
